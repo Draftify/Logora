@@ -1,0 +1,27 @@
+services:
+  backend-dev:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+
+    container_name: backend-dev
+    working_dir: /app
+    command: bun run dev
+
+    ports:
+      - "9095:9095"
+
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+
+    environment:
+      NODE_ENV: development
+      PORT: 9095
+
+    networks:
+      - logora-network
+
+networks:
+  logora-network:
+    driver: bridge
