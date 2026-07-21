@@ -1,0 +1,614 @@
+[
+  {
+    "service": "auth-service",
+    "event": "user.login",
+    "data": {
+      "userId": "USR-1001",
+      "name": "Alice Johnson",
+      "ip": "192.168.1.15",
+      "device": "Chrome",
+      "location": "New York",
+      "email": "alice@example.com"
+    }
+  },
+  {
+    "service": "order-service",
+    "event": "order.created",
+    "data": {
+      "orderId": "ORD-1001",
+      "userId": "USR-1001",
+      "name": "Alice Johnson",
+      "amount": 249.99,
+      "email": "alice@example.com"
+    }
+  },
+  {
+    "service": "payment-service",
+    "event": "payment.completed",
+    "data": {
+      "paymentId": "PAY-501",
+      "userId": "USR-1001",
+      "name": "Alice Johnson",
+      "status": "success",
+      "amount": 249.99
+    }
+  },
+  {
+    "service": "shipping-service",
+    "event": "shipment.created",
+    "data": {
+      "shipmentId": "SHP-201",
+      "userId": "USR-1001",
+      "name": "Alice Johnson",
+      "orderId": "ORD-1001",
+      "carrier": "FedEx"
+    }
+  },
+  {
+    "service": "notification-service",
+    "event": "email.sent",
+    "data": {
+      "template": "order-confirmation",
+      "userId": "USR-1001",
+      "name": "Alice Johnson",
+      "recipient": "alice@example.com"
+    }
+  },
+  {
+    "service": "auth-service",
+    "event": "login.failed",
+    "data": {
+      "email": "john@example.com",
+      "userId": "USR-8008",
+      "name": "John Doe",
+      "reason": "Invalid password",
+      "ip": "185.22.11.90"
+    }
+  },
+  {
+    "service": "security-service",
+    "event": "brute_force.detected",
+    "data": {
+      "ip": "185.22.11.90",
+      "userId": "USR-8008",
+      "name": "John Doe",
+      "attempts": 27,
+      "targetEmail": "john@example.com"
+    }
+  },
+  {
+    "service": "security-service",
+    "event": "account.locked",
+    "data": {
+      "userId": "USR-1001",
+      "name": "Alice Johnson",
+      "email": "alice@example.com",
+      "reason": "Too many failed logins",
+      "lockedBy": "automated_security_policy"
+    }
+  },
+  {
+    "service": "fraud-service",
+    "event": "fraud.detected",
+    "data": {
+      "orderId": "ORD-1002",
+      "userId": "USR-2002",
+      "name": "Bob Martinez",
+      "riskScore": 97,
+      "reason": "High-risk IP",
+      "email": "bob@example.com"
+    }
+  },
+  {
+    "service": "payment-service",
+    "event": "payment.blocked",
+    "data": {
+      "paymentId": "PAY-502",
+      "userId": "USR-2002",
+      "name": "Bob Martinez",
+      "reason": "Stolen card suspected",
+      "orderId": "ORD-1002"
+    }
+  },
+  {
+    "service": "fraud-service",
+    "event": "impossible.travel",
+    "data": {
+      "userId": "USR-205",
+      "name": "Charlie Rivera",
+      "email": "charlie@example.com",
+      "from": "London",
+      "to": "Singapore",
+      "within": "15m",
+      "riskScore": 99
+    }
+  },
+  {
+    "service": "security-service",
+    "event": "unauthorized.access",
+    "data": {
+      "userId": "USR-333",
+      "name": "Diana Patel",
+      "email": "diana@example.com",
+      "resource": "/admin/users",
+      "ip": "10.0.0.88",
+      "currentRole": "viewer"
+    }
+  },
+  {
+    "service": "security-service",
+    "event": "api_key.abuse",
+    "data": {
+      "apiKey": "KEY-901",
+      "userId": "USR-8888",
+      "name": "Eve Chen",
+      "requests": 8200,
+      "clientName": "Automated Integration",
+      "ip": "45.12.33.80"
+    }
+  },
+  {
+    "service": "catalog-service",
+    "event": "search.performed",
+    "data": {
+      "userId": "USR-1001",
+      "name": "Alice Johnson",
+      "query": "wireless headphones",
+      "resultCount": 23,
+      "searchDurationMs": 180
+    }
+  },
+  {
+    "service": "catalog-service",
+    "event": "product.viewed",
+    "data": {
+      "userId": "USR-1001",
+      "name": "Alice Johnson",
+      "productId": "PRD-8812",
+      "productName": "Sony WH-1000XM5 Headphones",
+      "price": 349.99,
+      "viewDurationMs": 45000
+    }
+  },
+  {
+    "service": "cart-service",
+    "event": "cart.item_added",
+    "data": {
+      "userId": "USR-1001",
+      "name": "Alice Johnson",
+      "productId": "PRD-8812",
+      "quantity": 1,
+      "unitPrice": 349.99,
+      "cartTotal": 517.97
+    }
+  },
+  {
+    "service": "promotion-service",
+    "event": "coupon.applied",
+    "data": {
+      "userId": "USR-1001",
+      "name": "Alice Johnson",
+      "coupon": "WELCOME10",
+      "discountAmount": 51.8
+    }
+  },
+  {
+    "service": "checkout-service",
+    "event": "checkout.started",
+    "data": {
+      "userId": "USR-1001",
+      "name": "Alice Johnson",
+      "cartId": "CART-5001",
+      "shippingMethod": "express"
+    }
+  },
+  {
+    "service": "inventory-service",
+    "event": "inventory.reserved",
+    "data": {
+      "orderId": "ORD-1001",
+      "userId": "USR-1001",
+      "name": "Alice Johnson",
+      "sku": "SKU-SONY-HP-XM5",
+      "warehouseId": "WH-NYC"
+    }
+  },
+  {
+    "service": "invoice-service",
+    "event": "invoice.generated",
+    "data": {
+      "invoiceId": "INV-8001",
+      "userId": "USR-1001",
+      "name": "Alice Johnson",
+      "orderId": "ORD-1001",
+      "amount": 249.99
+    }
+  },
+  {
+    "service": "warehouse-service",
+    "event": "item.picked",
+    "data": {
+      "orderId": "ORD-1001",
+      "userId": "USR-1001",
+      "name": "Alice Johnson",
+      "pickLocation": "Aisle-3-Bin-07"
+    }
+  },
+  {
+    "service": "warehouse-service",
+    "event": "package.packed",
+    "data": {
+      "packageId": "PKG-1001",
+      "userId": "USR-1001",
+      "name": "Alice Johnson",
+      "orderId": "ORD-1001",
+      "packageWeightKg": 0.85
+    }
+  },
+  {
+    "service": "shipping-service",
+    "event": "shipment.dispatched",
+    "data": {
+      "shipmentId": "SHP-201",
+      "userId": "USR-1001",
+      "name": "Alice Johnson",
+      "carrier": "FedEx",
+      "pickupTimestamp": "2026-07-21T14:30:00Z"
+    }
+  },
+  {
+    "service": "shipping-service",
+    "event": "shipment.in_transit",
+    "data": {
+      "shipmentId": "SHP-201",
+      "userId": "USR-1001",
+      "name": "Alice Johnson",
+      "scanLocation": "Memphis, TN",
+      "scanTimestamp": "2026-07-22T02:15:00Z"
+    }
+  },
+  {
+    "service": "shipping-service",
+    "event": "shipment.delivered",
+    "data": {
+      "shipmentId": "SHP-201",
+      "userId": "USR-1001",
+      "name": "Alice Johnson",
+      "deliveryTimestamp": "2026-07-23T11:45:00Z",
+      "deliveryConfirmation": "photo"
+    }
+  },
+  {
+    "service": "review-service",
+    "event": "review.submitted",
+    "data": {
+      "reviewId": "REV-5001",
+      "userId": "USR-1001",
+      "name": "Alice Johnson",
+      "productId": "PRD-8812",
+      "rating": 5,
+      "verifiedPurchase": true
+    }
+  },
+  {
+    "service": "customer-service",
+    "event": "support.ticket_created",
+    "data": {
+      "ticketId": "TKT-1001",
+      "userId": "USR-1001",
+      "name": "Alice Johnson",
+      "email": "alice@example.com",
+      "reason": "Delivery inquiry",
+      "priority": "medium"
+    }
+  },
+  {
+    "service": "payment-service",
+    "event": "refund.processed",
+    "data": {
+      "refundId": "REF-1001",
+      "userId": "USR-1001",
+      "name": "Alice Johnson",
+      "amount": 49.99,
+      "reason": "price_adjustment"
+    }
+  },
+  {
+    "service": "analytics-service",
+    "event": "recommendations.generated",
+    "data": {
+      "userId": "USR-1001",
+      "name": "Alice Johnson",
+      "count": 8,
+      "algorithmVersion": "rec-v4.2"
+    }
+  },
+  {
+    "service": "auth-service",
+    "event": "user.logout",
+    "data": {
+      "userId": "USR-1001",
+      "name": "Alice Johnson",
+      "sessionDurationMs": 2840000,
+      "device": "Chrome on Windows"
+    }
+  },
+  {
+    "service": "notification-service",
+    "event": "push.sent",
+    "data": {
+      "campaign": "Weekend Sale",
+      "userId": "USR-1001",
+      "name": "Alice Johnson",
+      "platform": "iOS",
+      "provider": "firebase"
+    }
+  },
+  {
+    "service": "payment-service",
+    "event": "payment.retry",
+    "data": {
+      "paymentId": "PAY-9002",
+      "userId": "USR-2002",
+      "name": "Bob Martinez",
+      "attempt": 2,
+      "maxAttempts": 3
+    }
+  },
+  {
+    "service": "payment-service",
+    "event": "payment.declined",
+    "data": {
+      "paymentId": "PAY-9002",
+      "userId": "USR-2002",
+      "name": "Bob Martinez",
+      "reason": "3DS authentication failed",
+      "cardLast4": "5555",
+      "cardBrand": "Mastercard"
+    }
+  },
+  {
+    "service": "inventory-service",
+    "event": "inventory.adjustment",
+    "data": {
+      "productId": "PRD-4400",
+      "userId": "SYS-001",
+      "name": "System - Warehouse",
+      "sku": "SKU-OFFICE-044",
+      "difference": -8,
+      "reason": "damaged_in_transit"
+    }
+  },
+  {
+    "service": "warehouse-service",
+    "event": "package.weight_mismatch",
+    "data": {
+      "packageId": "PKG-2040",
+      "userId": "SYS-002",
+      "name": "System - Quality Control",
+      "expectedWeightKg": 2.5,
+      "actualWeightKg": 1.8,
+      "discrepancyKg": 0.7
+    }
+  },
+  {
+    "service": "shipping-service",
+    "event": "delivery.address_changed",
+    "data": {
+      "orderId": "ORD-5022",
+      "userId": "USR-3003",
+      "name": "Carol Davis",
+      "previousAddress": "123 Main St",
+      "newAddress": "456 Oak Ave"
+    }
+  },
+  {
+    "service": "order-service",
+    "event": "multiple_orders_same_address",
+    "data": {
+      "addressId": "ADDR-220",
+      "userId": "USR-2002",
+      "name": "Bob Martinez",
+      "orderIds": ["ORD-5011", "ORD-5013"],
+      "count": 2,
+      "timeWindowMin": 15
+    }
+  },
+  {
+    "service": "payment-service",
+    "event": "chargeback.received",
+    "data": {
+      "paymentId": "PAY-8120",
+      "userId": "USR-4004",
+      "name": "Diana Evans",
+      "amount": 189.99,
+      "reason": "product_not_received"
+    }
+  },
+  {
+    "service": "fraud-service",
+    "event": "transaction.review_required",
+    "data": {
+      "orderId": "ORD-5200",
+      "userId": "USR-5005",
+      "name": "Frank Thompson",
+      "riskScore": 81,
+      "riskLevel": "high",
+      "recommendation": "manual_review"
+    }
+  },
+  {
+    "service": "analytics-service",
+    "event": "traffic.spike_detected",
+    "data": {
+      "region": "Europe",
+      "userId": "SYS-003",
+      "name": "System - Monitoring",
+      "increase": "270%",
+      "baselineRpm": 1200,
+      "currentRpm": 4440,
+      "detectedAt": "2026-07-21T14:00:00Z"
+    }
+  },
+  {
+    "service": "notification-service",
+    "event": "otp.requested",
+    "data": {
+      "userId": "USR-2033",
+      "name": "Bob Martinez",
+      "email": "bob@example.com",
+      "purpose": "password_reset",
+      "count": 5
+    }
+  },
+  {
+    "service": "customer-service",
+    "event": "refund.request_frequency_exceeded",
+    "data": {
+      "userId": "USR-8810",
+      "name": "Grace Kim",
+      "email": "grace@example.com",
+      "refunds": 5,
+      "timeWindowDays": 30
+    }
+  },
+  {
+    "service": "inventory-service",
+    "event": "stock.low",
+    "data": {
+      "productId": "PRD-9210",
+      "userId": "SYS-004",
+      "name": "System - Inventory",
+      "productName": "Organic Green Tea",
+      "remaining": 2,
+      "reorderPoint": 10
+    }
+  },
+  {
+    "service": "warehouse-service",
+    "event": "shipment.delayed",
+    "data": {
+      "shipmentId": "SHP-5001",
+      "userId": "USR-6006",
+      "name": "Henry Williams",
+      "reason": "Weather",
+      "delayDurationHrs": 24,
+      "customerNotified": true
+    }
+  },
+  {
+    "service": "payment-service",
+    "event": "payment.pending_review",
+    "data": {
+      "paymentId": "PAY-9200",
+      "userId": "USR-7007",
+      "name": "Isabella Garcia",
+      "amount": 599.99,
+      "reason": "unusually_high_amount"
+    }
+  },
+  {
+    "service": "auth-service",
+    "event": "new_device_detected",
+    "data": {
+      "userId": "USR-3300",
+      "name": "Carol Davis",
+      "device": "Firefox on Linux",
+      "ip": "203.0.113.42",
+      "notificationSent": true
+    }
+  },
+  {
+    "service": "security-service",
+    "event": "login.rate_limited",
+    "data": {
+      "ip": "185.22.11.90",
+      "userId": "USR-8008",
+      "name": "John Doe",
+      "attempts": 22,
+      "action": "blocked_for_15min"
+    }
+  },
+  {
+    "service": "security-service",
+    "event": "impossible.travel",
+    "data": {
+      "userId": "USR-9001",
+      "name": "Ivy Chen",
+      "from": "Paris",
+      "to": "Tokyo",
+      "within": "18m",
+      "riskScore": 95
+    }
+  },
+  {
+    "service": "security-service",
+    "event": "privilege.escalation_attempt",
+    "data": {
+      "userId": "USR-7712",
+      "name": "Frank Brown",
+      "currentRole": "Viewer",
+      "targetRole": "Admin",
+      "action": "blocked"
+    }
+  },
+  {
+    "service": "api-gateway",
+    "event": "endpoint.scan_detected",
+    "data": {
+      "ip": "45.12.33.80",
+      "userId": "SYS-005",
+      "name": "System - Security",
+      "uniqueEndpoints": 186,
+      "timeWindowMin": 2,
+      "userAgent": "ScanningBot/1.0"
+    }
+  },
+  {
+    "service": "security-service",
+    "event": "api_key.used_after_rotation",
+    "data": {
+      "clientId": "CLIENT-55",
+      "userId": "SYS-006",
+      "name": "System - API Gateway",
+      "clientName": "Legacy Integration",
+      "action": "rejected"
+    }
+  },
+  {
+    "service": "fraud-service",
+    "event": "coupon.abuse.detected",
+    "data": {
+      "coupon": "WELCOME10",
+      "userId": "SYS-007",
+      "name": "System - Fraud Detection",
+      "accounts": 24,
+      "totalDiscountClaimed": 356.4,
+      "action": "coupon_deactivated"
+    }
+  },
+  {
+    "service": "fraud-service",
+    "event": "velocity.limit_exceeded",
+    "data": {
+      "userId": "USR-6200",
+      "name": "Eve Martinez",
+      "email": "eve@example.com",
+      "orders": 16,
+      "window": "10m",
+      "action": "flagged_for_review"
+    }
+  },
+  {
+    "service": "security-service",
+    "event": "restricted_resource_requested",
+    "data": {
+      "userId": "USR-8122",
+      "name": "Grace Lee",
+      "resource": "/admin/orders",
+      "currentRole": "support_agent",
+      "requiredRole": "admin",
+      "action": "access_denied"
+    }
+  }
+]
