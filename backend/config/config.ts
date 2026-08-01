@@ -14,9 +14,4 @@ export const config = {
   port: env.PORT,
   nodeEnv: env.NODE_ENV,
   corsOrigins: env.CORS_ORIGINS?.split(",") ?? [],
-  db: {
-    url: env.DATABASE_URL,
-    username: env.DATABASE_USERNAME,
-    password: env.DATABASE_PASSWORD,
-  },
 } as const;

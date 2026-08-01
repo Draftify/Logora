@@ -13,12 +13,6 @@ export const configSchema = z.object({
     .default(NodeEnv.Development),
 
   CORS_ORIGINS: z.string().optional(),
-
-  DATABASE_URL: z.url(),
-
-  DATABASE_USERNAME: z.string().min(1),
-
-  DATABASE_PASSWORD: z.string().min(1),
 });
 
 export type Env = z.infer<typeof configSchema>;
