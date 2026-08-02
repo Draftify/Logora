@@ -14,4 +14,6 @@ export const config = {
   port: env.PORT,
   nodeEnv: env.NODE_ENV,
   corsOrigins: env.CORS_ORIGINS?.split(",") ?? [],
+  redisUrl: env.REDIS_URL,
+  redisPassword: env.REDIS_PASSWORD,
 } as const;

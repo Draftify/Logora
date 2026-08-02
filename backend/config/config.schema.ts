@@ -13,6 +13,10 @@ export const configSchema = z.object({
     .default(NodeEnv.Development),
 
   CORS_ORIGINS: z.string().optional(),
+
+  REDIS_URL: z.string().url(),
+
+  REDIS_PASSWORD: z.string().optional(),
 });
 
 export type Env = z.infer<typeof configSchema>;
