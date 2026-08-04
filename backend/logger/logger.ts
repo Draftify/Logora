@@ -1,6 +1,6 @@
 import pino from "pino";
 import { config } from "../config/config";
-import { NodeEnv } from "../config/config.schema";
+import { NodeEnv } from "../schema/config.schema";
 
 const isDev = config.nodeEnv === NodeEnv.Development;
 

@@ -1,4 +1,4 @@
-import { configSchema } from "./config.schema";
+import { configSchema } from "../schema/config.schema";
 
 const parsedEnv = configSchema.safeParse(process.env);
 

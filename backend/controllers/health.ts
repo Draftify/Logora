@@ -1,22 +1,20 @@
-import { isRedisHealthy } from "../lib/redis";
+import { connection } from "../lib/queue";
 
-export const healthController = async () => {
-  const redisHealthy = await isRedisHealthy();
+export async function healthController() {
+  try {
+    await connection.ping();
 
-  if (!redisHealthy) {
+    return Response.json({
+      status: "healthy",
+      redis: "connected",
+    });
+  } catch {
     return Response.json(
       {
-        message: "Backend is unhealthy",
+        status: "unhealthy",
         redis: "disconnected",
       },
-      {
-        status: 503,
-      },
+      { status: 503 },
     );
   }
-
-  return Response.json({
-    message: "Backend is healthy",
-    redis: "connected",
-  });
-};
+}

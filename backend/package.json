@@ -9,13 +9,16 @@
   },
   "scripts": {
     "dev": "bun run --watch index.ts",
-    "build": "bun build index.ts --outdir dist",
-    "start": "bun run dist/index.js"
+    "build": "bun build index.ts --outdir dist --target bun",
+    "start": "bun run dist/index.js",
+    "worker": "bun run workers/event-processor.ts",
+    "enqueue:simulation": "bun run scripts/enqueue-simulation.ts"
   },
   "peerDependencies": {
     "typescript": "^5"
   },
   "dependencies": {
+    "bullmq": "^6.0.6",
     "cors": "^2.8.6",
     "ioredis": "^6.0.0",
     "pino": "^10.3.1",
