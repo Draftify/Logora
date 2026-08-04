@@ -16,5 +16,14 @@ export async function addEventController(req: Request) {
 }
 
 export async function getQueueStatsController() {
-  return Response.json(await getEventQueueCounts());
+  try {
+    const stats = await getEventQueueCounts();
+
+    return Response.json(stats);
+  } catch {
+    return Response.json(
+      { message: "Failed to retrieve queue statistics" },
+      { status: 500 },
+    );
+  }
 }
