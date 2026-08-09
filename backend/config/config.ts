@@ -16,4 +16,6 @@ export const config = {
   corsOrigins: env.CORS_ORIGINS?.split(",") ?? [],
   redisUrl: env.REDIS_URL,
   redisPassword: env.REDIS_PASSWORD,
+  deepSeekApiKey: env.DEEPSEEK_API_KEY,
+  deepSeekModel: env.DEEPSEEK_MODEL,
 } as const;

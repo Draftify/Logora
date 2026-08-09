@@ -2,6 +2,7 @@ import {
   addEventController,
   getQueueStatsController,
 } from "../controllers/events";
+import { analyzeEventsController } from "../controllers/analyze";
 import { getSimulatedDataController } from "../controllers/data";
 import { healthController } from "../controllers/health";
 
@@ -15,5 +16,10 @@ export const routes = [
     method: "GET",
     path: "/simulated-data",
     handler: getSimulatedDataController,
+  },
+  {
+    method: "POST",
+    path: "/events/analyze",
+    handler: analyzeEventsController,
   },
 ] as const;
