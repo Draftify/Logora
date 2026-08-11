@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { analyzeEvents } from "../lib/analyzer";
 import { logger } from "../logger/logger";
-import { analyzeRequestSchema } from "../schema/analyze.request.schema";
+import { analyzeRequestSchema } from "../schema/analyze.schema";
 
 export async function analyzeEventsController(req: Request) {
   try {
