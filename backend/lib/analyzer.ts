@@ -75,6 +75,16 @@ export async function analyzeData<T>(
       );
     }
 
+    logger.info(
+      {
+        itemCount: data.length,
+        summary: result.data.summary,
+        riskCount: result.data.risks.length,
+        insightCount: result.data.insights.length,
+      },
+      "DeepSeek analysis completed successfully",
+    );
+
     return result.data;
   } catch (error) {
     logger.error(

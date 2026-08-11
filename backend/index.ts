@@ -3,6 +3,9 @@ import { logger } from "./logger/logger";
 import { routes } from "./routes/routes";
 import { eventQueue } from "./lib/queue";
 import { eventWorker } from "./lib/processor";
+import { startBatchScheduler } from "./lib/batch.analyzer";
+
+const abortController = new AbortController();
 
 const server = Bun.serve({
   port: config.port,
@@ -23,9 +26,12 @@ logger.info(
   `Logora started on ${server.hostname}:${server.port} (${config.nodeEnv})`,
 );
 
+startBatchScheduler(abortController.signal);
+
 async function shutdown(signal: string) {
   logger.info({ signal }, "Shutting down");
 
+  abortController.abort();
   await eventWorker.close();
   await eventQueue.close();
 
