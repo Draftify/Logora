@@ -5,8 +5,10 @@ import {
   findUserByEmail,
   createUser,
   createSession,
+  deleteSession,
   DuplicateEmailError,
 } from "../lib/user.service";
+import { getAuthContext } from "../lib/auth";
 
 export async function signupController(req: Request): Promise<Response> {
   try {
@@ -97,5 +99,27 @@ export async function loginController(req: Request): Promise<Response> {
     );
 
     return Response.json({ message: "Failed to log in" }, { status: 500 });
+  }
+}
+
+export async function logoutController(req: Request): Promise<Response> {
+  const ctx = getAuthContext(req);
+  if (!ctx) {
+    return Response.json({ message: "Unauthorized" }, { status: 401 });
+  }
+
+  try {
+    await deleteSession(ctx.token);
+
+    logger.info({ userId: ctx.session.userId }, "User logged out");
+
+    return Response.json({ message: "Logged out" });
+  } catch (error) {
+    logger.error(
+      { error: error instanceof Error ? error.message : String(error) },
+      "Failed to log out user",
+    );
+
+    return Response.json({ message: "Failed to log out" }, { status: 500 });
   }
 }
