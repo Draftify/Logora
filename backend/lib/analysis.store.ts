@@ -13,21 +13,45 @@ function analysisKey(id: string) {
 /* ── Buffer ─────────────────────────────────────────────── */
 
 export async function pushToBuffer(event: unknown): Promise<number> {
-  return connection.rpush(BUFFER_KEY, JSON.stringify(event));
+  try {
+    return await connection.rpush(BUFFER_KEY, JSON.stringify(event));
+  } catch (error) {
+    logger.error(
+      { error: error instanceof Error ? error.message : String(error) },
+      "Failed to push event to buffer",
+    );
+    throw error;
+  }
 }
 
 export async function popBuffer(count: number): Promise<unknown[]> {
-  const items: string[] = [];
-  for (let i = 0; i < count; i++) {
-    const item = await connection.lpop(BUFFER_KEY);
-    if (!item) break;
-    items.push(item);
+  try {
+    const items: string[] = [];
+    for (let i = 0; i < count; i++) {
+      const item = await connection.lpop(BUFFER_KEY);
+      if (!item) break;
+      items.push(item);
+    }
+    return items.map((i) => JSON.parse(i) as unknown);
+  } catch (error) {
+    logger.error(
+      { count, error: error instanceof Error ? error.message : String(error) },
+      "Failed to pop events from buffer",
+    );
+    throw error;
   }
-  return items.map((i) => JSON.parse(i) as unknown);
 }
 
 export async function bufferLength(): Promise<number> {
-  return connection.llen(BUFFER_KEY);
+  try {
+    return await connection.llen(BUFFER_KEY);
+  } catch (error) {
+    logger.error(
+      { error: error instanceof Error ? error.message : String(error) },
+      "Failed to read buffer length",
+    );
+    throw error;
+  }
 }
 
 /* ── Analysis CRUD ─────────────────────────────────────── */
@@ -36,86 +60,124 @@ export async function storeAnalysis(
   analysis: Analysis,
   eventCount: number,
 ): Promise<StoredAnalysis> {
-  const id = crypto.randomUUID();
-  const createdAt = new Date().toISOString();
+  try {
+    const id = crypto.randomUUID();
+    const createdAt = new Date().toISOString();
 
-  const record: StoredAnalysis = {
-    id,
-    summary: analysis.summary,
-    insights: analysis.insights,
-    risks: analysis.risks,
-    recommendations: analysis.recommendations,
-    eventCount,
-    createdAt,
-    read: false,
-  };
+    const record: StoredAnalysis = {
+      id,
+      summary: analysis.summary,
+      insights: analysis.insights,
+      risks: analysis.risks,
+      recommendations: analysis.recommendations,
+      eventCount,
+      createdAt,
+      read: false,
+    };
 
-  await connection
-    .multi()
-    .hset(analysisKey(id), {
-      id: record.id,
-      summary: record.summary,
-      insights: JSON.stringify(record.insights),
-      risks: JSON.stringify(record.risks),
-      recommendations: JSON.stringify(record.recommendations),
-      eventCount: String(record.eventCount),
-      createdAt: record.createdAt,
-      read: "false",
-    })
-    .zadd(LIST_KEY, Date.now(), id)
-    .exec();
+    await connection
+      .multi()
+      .hset(analysisKey(id), {
+        id: record.id,
+        summary: record.summary,
+        insights: JSON.stringify(record.insights),
+        risks: JSON.stringify(record.risks),
+        recommendations: JSON.stringify(record.recommendations),
+        eventCount: String(record.eventCount),
+        createdAt: record.createdAt,
+        read: "false",
+      })
+      .zadd(LIST_KEY, Date.now(), id)
+      .exec();
 
-  logger.info({ analysisId: id, eventCount }, "Analysis stored");
+    logger.info({ analysisId: id, eventCount }, "Analysis stored");
 
-  return record;
+    return record;
+  } catch (error) {
+    logger.error(
+      {
+        eventCount,
+        error: error instanceof Error ? error.message : String(error),
+      },
+      "Failed to store analysis",
+    );
+    throw error;
+  }
 }
 
 export async function listAnalyses(): Promise<StoredAnalysis[]> {
-  const ids = await connection.zrevrange(LIST_KEY, 0, -1);
-  if (ids.length === 0) return [];
+  try {
+    const ids = await connection.zrevrange(LIST_KEY, 0, -1);
+    if (ids.length === 0) return [];
 
-  const pipeline = connection.pipeline();
-  for (const id of ids) {
-    pipeline.hgetall(analysisKey(id));
+    const pipeline = connection.pipeline();
+    for (const id of ids) {
+      pipeline.hgetall(analysisKey(id));
+    }
+
+    const results = (await pipeline.exec()) ?? [];
+    const analyses: StoredAnalysis[] = [];
+
+    for (const item of results) {
+      const err = item[0];
+      const raw = item[1] as Record<string, string> | null | undefined;
+
+      if (err || !raw || Object.keys(raw).length === 0) continue;
+
+      analyses.push(hydrateAnalysis(raw));
+    }
+
+    return analyses;
+  } catch (error) {
+    logger.error(
+      { error: error instanceof Error ? error.message : String(error) },
+      "Failed to list analyses",
+    );
+    throw error;
   }
-
-  const results = (await pipeline.exec()) ?? [];
-  const analyses: StoredAnalysis[] = [];
-
-  for (const item of results) {
-    const err = item[0];
-    const raw = item[1] as Record<string, string> | null | undefined;
-
-    if (err || !raw || Object.keys(raw).length === 0) continue;
-
-    analyses.push(hydrateAnalysis(raw));
-  }
-
-  return analyses;
 }
 
 export async function markAsRead(analysisId: string): Promise<boolean> {
-  const exists = await connection.exists(analysisKey(analysisId));
-  if (!exists) return false;
+  try {
+    const exists = await connection.exists(analysisKey(analysisId));
+    if (!exists) return false;
 
-  await connection.hset(analysisKey(analysisId), "read", "true");
-  return true;
+    await connection.hset(analysisKey(analysisId), "read", "true");
+    return true;
+  } catch (error) {
+    logger.error(
+      {
+        analysisId,
+        error: error instanceof Error ? error.message : String(error),
+      },
+      "Failed to mark analysis as read",
+    );
+    throw error;
+  }
 }
 
 export async function clearAnalyses(): Promise<number> {
-  const ids = await connection.zrange(LIST_KEY, "0", "-1");
-  if (ids.length === 0) return 0;
+  try {
+    const ids = await connection.zrange(LIST_KEY, "0", "-1");
+    if (ids.length === 0) return 0;
 
-  const pipeline = connection.pipeline();
-  for (const id of ids) {
-    pipeline.del(analysisKey(id));
+    const pipeline = connection.pipeline();
+    for (const id of ids) {
+      pipeline.del(analysisKey(id));
+    }
+    pipeline.del(LIST_KEY);
+    await pipeline.exec();
+
+    logger.info({ count: ids.length }, "All analyses cleared");
+
+    return ids.length;
+  } catch (error) {
+    logger.error(
+      { error: error instanceof Error ? error.message : String(error) },
+      "Failed to clear analyses",
+    );
+    throw error;
   }
-  pipeline.del(LIST_KEY);
-  await pipeline.exec();
-
-  logger.info({ count: ids.length }, "All analyses cleared");
-
-  return ids.length;
 }
 
 /* ── Helpers ────────────────────────────────────────────── */

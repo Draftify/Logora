@@ -5,6 +5,7 @@ import {
   findUserByEmail,
   createUser,
   createSession,
+  DuplicateEmailError,
 } from "../lib/user.service";
 
 export async function signupController(req: Request): Promise<Response> {
@@ -37,7 +38,7 @@ export async function signupController(req: Request): Promise<Response> {
       return Response.json(error.flatten(), { status: 400 });
     }
 
-    if (error instanceof Error && error.message.includes("already exists")) {
+    if (error instanceof DuplicateEmailError) {
       return Response.json({ message: error.message }, { status: 409 });
     }
 
@@ -66,10 +67,7 @@ export async function loginController(req: Request): Promise<Response> {
       );
     }
 
-    const valid = await Bun.password.verify(
-      body.password,
-      user.passwordHash,
-    );
+    const valid = await Bun.password.verify(body.password, user.passwordHash);
 
     if (!valid) {
       return Response.json(
@@ -98,9 +96,6 @@ export async function loginController(req: Request): Promise<Response> {
       "Failed to log in user",
     );
 
-    return Response.json(
-      { message: "Failed to log in" },
-      { status: 500 },
-    );
+    return Response.json({ message: "Failed to log in" }, { status: 500 });
   }
 }

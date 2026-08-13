@@ -51,8 +51,5 @@ export function startBatchScheduler(abort: AbortSignal): void {
     clearInterval(timer);
   });
 
-  logger.info(
-    { batchSize: BATCH_SIZE, intervalMs: FLUSH_INTERVAL_MS },
-    "Batch analysis scheduler started",
-  );
+  logger.info("Batch analysis scheduler started");
 }
