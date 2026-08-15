@@ -15,7 +15,7 @@ function Avatar({ email, className }: { email: string; className?: string }) {
 
   return (
     <span
-      className={`flex items-center justify-center rounded-full bg-zinc-900 text-sm font-medium text-white ${className ?? ""}`}
+      className={`flex items-center justify-center rounded-full bg-linear-to-br from-indigo-500 to-violet-600 text-sm font-semibold text-white shadow-sm ${className ?? ""}`}
       aria-hidden="true"
     >
       {initial}

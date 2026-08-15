@@ -9,7 +9,7 @@ import {
   fetchSimulatedEvents,
 } from "@/lib/dashboard";
 import type {
-  Analysis,
+  EventPayload,
   QueueStats,
   ServerHealth,
   StoredAnalysis,
@@ -25,6 +25,10 @@ export async function getQueueStatsAction(): Promise<QueueStats | null> {
 
 export async function getServerMetricsAction(): Promise<ServerHealth | null> {
   return fetchServerHealth();
+}
+
+export async function getSimulatedEventsAction(): Promise<EventPayload[]> {
+  return fetchSimulatedEvents();
 }
 
 export async function markReadAction(id: string): Promise<void> {
@@ -60,22 +64,19 @@ export async function flushAction(): Promise<void> {
   revalidatePath("/dashboard");
 }
 
-export interface AnalyzeResult {
+export interface EnqueueEventResult {
   ok: boolean;
-  analysis?: Analysis;
+  jobId?: string;
   error?: string;
 }
 
-export async function analyzeSampleAction(): Promise<AnalyzeResult> {
+export async function enqueueEventAction(
+  event: EventPayload,
+): Promise<EnqueueEventResult> {
   try {
-    const events = await fetchSimulatedEvents();
-    if (events.length === 0) {
-      return { ok: false, error: "No sample events are available." };
-    }
-
-    const res = await authenticatedFetch("/events/analyze", {
+    const res = await authenticatedFetch("/events", {
       method: "POST",
-      body: JSON.stringify({ events }),
+      body: JSON.stringify(event),
     });
 
     if (!res.ok) {
@@ -83,19 +84,18 @@ export async function analyzeSampleAction(): Promise<AnalyzeResult> {
       const message =
         data && typeof data === "object" && "message" in data
           ? String((data as { message?: unknown }).message)
-          : "Analysis failed. Please try again.";
+          : "Failed to enqueue event.";
 
       return { ok: false, error: message };
     }
 
-    return { ok: true, analysis: (await res.json()) as Analysis };
+    const data = (await res.json()) as { jobId?: string };
+    return { ok: true, jobId: data.jobId };
   } catch (error) {
     return {
       ok: false,
       error:
-        error instanceof Error
-          ? error.message
-          : "Analysis failed. Please try again.",
+        error instanceof Error ? error.message : "Failed to enqueue event.",
     };
   }
 }

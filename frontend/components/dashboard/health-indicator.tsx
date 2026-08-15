@@ -42,18 +42,35 @@ export function HealthIndicator() {
       title={
         health ? `Redis: ${health.redis ?? "unknown"}` : "Checking backend"
       }
-      className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-zinc-50 px-2 py-1 text-xs font-medium text-zinc-700 sm:px-3"
+      className={cn(
+        "inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
+        health === null
+          ? "border-white/10 bg-white/5 text-zinc-400"
+          : healthy
+            ? "border-emerald-400/20 bg-emerald-400/10 text-emerald-300"
+            : "border-rose-400/20 bg-rose-400/10 text-rose-300",
+      )}
     >
-      <span
-        className={cn(
-          "h-2 w-2 rounded-full",
-          health === null
-            ? "bg-zinc-300"
-            : healthy
-              ? "bg-emerald-500"
-              : "bg-red-500",
-        )}
-      />
+      <span className="relative flex h-2 w-2">
+        {health !== null ? (
+          <span
+            className={cn(
+              "absolute inline-flex h-full w-full rounded-full animate-ping-ring",
+              healthy ? "bg-emerald-400" : "bg-rose-400",
+            )}
+          />
+        ) : null}
+        <span
+          className={cn(
+            "relative inline-flex h-2 w-2 rounded-full",
+            health === null
+              ? "bg-zinc-500"
+              : healthy
+                ? "bg-emerald-400"
+                : "bg-rose-400",
+          )}
+        />
+      </span>
       <span className="hidden sm:inline">
         {health === null ? "Checking…" : healthy ? "Healthy" : "Offline"}
       </span>
