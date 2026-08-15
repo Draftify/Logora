@@ -102,6 +102,20 @@ export async function loginController(req: Request): Promise<Response> {
   }
 }
 
+export async function meController(req: Request): Promise<Response> {
+  const ctx = getAuthContext(req);
+  if (!ctx) {
+    return Response.json({ message: "Unauthorized" }, { status: 401 });
+  }
+
+  return Response.json({
+    user: {
+      id: ctx.session.userId,
+      email: ctx.session.email,
+    },
+  });
+}
+
 export async function logoutController(req: Request): Promise<Response> {
   const ctx = getAuthContext(req);
   if (!ctx) {

@@ -1,0 +1,13 @@
+@import "tailwindcss";
+
+html,
+body {
+    height: 100%;
+}
+
+body {
+    background-color: #fafafa; /* zinc-50 */
+    color: #18181b; /* zinc-900 */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}

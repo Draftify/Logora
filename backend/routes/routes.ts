@@ -8,6 +8,7 @@ import { healthController } from "../controllers/health";
 import {
   signupController,
   loginController,
+  meController,
   logoutController,
 } from "../controllers/auth";
 import {
@@ -28,6 +29,12 @@ export const routes = [
   { method: "POST", path: "/auth/login", handler: loginController },
 
   // Protected
+  {
+    method: "GET",
+    path: "/auth/me",
+    handler: meController,
+    auth: true,
+  },
   {
     method: "POST",
     path: "/auth/logout",

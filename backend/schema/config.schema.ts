@@ -12,6 +12,8 @@ export const configSchema = z.object({
     .enum([NodeEnv.Development, NodeEnv.Production])
     .default(NodeEnv.Development),
 
+  CORS_ORIGINS: z.string().optional(),
+
   REDIS_URL: z.string().url(),
 
   REDIS_PASSWORD: z.string().optional(),
