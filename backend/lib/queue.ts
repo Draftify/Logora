@@ -29,12 +29,32 @@ export async function addEventJob(payload: unknown) {
   return { jobId: job.id };
 }
 
-export function getEventQueueCounts() {
-  return eventQueue.getJobCounts(
-    "waiting",
-    "active",
-    "delayed",
-    "completed",
-    "failed",
-  );
+// BullMQ caps the `completed`/`failed` job counts it retains in Redis
+// (`removeOnComplete: 100`), so those values never reflect the true totals.
+// We keep our own cumulative counters to surface meaningful numbers.
+const COMPLETED_COUNTER_KEY = "stats:completed";
+const FAILED_COUNTER_KEY = "stats:failed";
+
+export async function incrementCompletedCounter() {
+  return connection.incr(COMPLETED_COUNTER_KEY);
+}
+
+export async function incrementFailedCounter() {
+  return connection.incr(FAILED_COUNTER_KEY);
+}
+
+export async function getEventQueueCounts() {
+  const [live, completed, failed] = await Promise.all([
+    eventQueue.getJobCounts("waiting", "active", "delayed"),
+    connection.get(COMPLETED_COUNTER_KEY),
+    connection.get(FAILED_COUNTER_KEY),
+  ]);
+
+  return {
+    waiting: live.waiting ?? 0,
+    active: live.active ?? 0,
+    delayed: live.delayed ?? 0,
+    completed: Number(completed ?? "0"),
+    failed: Number(failed ?? "0"),
+  };
 }

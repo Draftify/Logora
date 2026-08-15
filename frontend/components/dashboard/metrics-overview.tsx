@@ -6,32 +6,15 @@ import {
   BarChart3,
   CheckCircle2,
   Clock,
-  Cpu,
   Database,
-  HardDrive,
-  Server,
-  Timer,
   XCircle,
 } from "lucide-react";
 import {
   getAnalysesAction,
   getQueueStatsAction,
-  getServerMetricsAction,
 } from "@/app/actions/dashboard";
-import type { QueueStats, ServerHealth, StoredAnalysis } from "@/lib/types";
+import type { QueueStats, StoredAnalysis } from "@/lib/types";
 import { cn } from "@/lib/utils";
-
-function formatUptime(seconds?: number): string {
-  if (seconds == null) return "—";
-
-  const days = Math.floor(seconds / 86400);
-  const hours = Math.floor((seconds % 86400) / 3600);
-  const minutes = Math.floor((seconds % 3600) / 60);
-
-  if (days > 0) return `${days}d ${hours}h`;
-  if (hours > 0) return `${hours}h ${minutes}m`;
-  return `${minutes}m`;
-}
 
 function useCountUp(target: number | undefined, duration = 900) {
   const [value, setValue] = useState(0);
@@ -71,56 +54,6 @@ interface Kpi {
   chip: string;
   bar: string;
   seed: number;
-}
-
-interface ServerMetricProps {
-  label: string;
-  value: string;
-  icon: ComponentType<{ className?: string }>;
-  ok?: boolean;
-}
-
-function ServerMetric({ label, value, icon: Icon, ok }: ServerMetricProps) {
-  return (
-    <div className="flex items-center gap-3 rounded-xl border border-white/8 bg-white/[0.03] px-3.5 py-2.5">
-      <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/5 text-zinc-400">
-        <Icon className="h-4 w-4" />
-      </span>
-      <div className="min-w-0">
-        <p className="text-[11px] font-medium uppercase tracking-wide text-zinc-500">
-          {label}
-        </p>
-        <p
-          className={cn(
-            "truncate text-sm font-semibold",
-            ok === undefined
-              ? "text-zinc-100"
-              : ok
-                ? "text-emerald-300"
-                : "text-rose-300",
-          )}
-        >
-          {value}
-        </p>
-      </div>
-      {ok !== undefined ? (
-        <span className="relative ml-auto flex h-2 w-2">
-          <span
-            className={cn(
-              "absolute inline-flex h-full w-full rounded-full animate-ping-ring",
-              ok ? "bg-emerald-400" : "bg-rose-400",
-            )}
-          />
-          <span
-            className={cn(
-              "relative inline-flex h-2 w-2 rounded-full",
-              ok ? "bg-emerald-400" : "bg-rose-400",
-            )}
-          />
-        </span>
-      ) : null}
-    </div>
-  );
 }
 
 function KpiCard({ kpi, index }: { kpi: Kpi; index: number }) {
@@ -171,7 +104,6 @@ function KpiCard({ kpi, index }: { kpi: Kpi; index: number }) {
 export function MetricsOverview() {
   const [queue, setQueue] = useState<QueueStats | null>(null);
   const [analyses, setAnalyses] = useState<StoredAnalysis[]>([]);
-  const [health, setHealth] = useState<ServerHealth | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -179,16 +111,14 @@ export function MetricsOverview() {
 
     (async () => {
       try {
-        const [queueData, analysesData, healthData] = await Promise.all([
+        const [queueData, analysesData] = await Promise.all([
           getQueueStatsAction(),
           getAnalysesAction(),
-          getServerMetricsAction(),
         ]);
 
         if (active) {
           setQueue(queueData);
           setAnalyses(analysesData);
-          setHealth(healthData);
         }
       } finally {
         if (active) setLoading(false);
@@ -204,9 +134,6 @@ export function MetricsOverview() {
     (sum, analysis) => sum + analysis.eventCount,
     0,
   );
-
-  const backendHealthy = health?.status === "healthy";
-  const redisConnected = health?.redis === "connected";
 
   const kpis: Kpi[] = [
     {
@@ -299,38 +226,6 @@ export function MetricsOverview() {
           ))}
         </div>
       )}
-
-      <div
-        id="health"
-        className="mt-6 grid scroll-mt-24 grid-cols-1 gap-3 border-t border-white/8 pt-6 sm:grid-cols-2 xl:grid-cols-4"
-      >
-        <ServerMetric
-          label="Backend"
-          value={backendHealthy ? "Healthy" : "Unhealthy"}
-          ok={backendHealthy}
-          icon={Server}
-        />
-        <ServerMetric
-          label="Redis"
-          value={redisConnected ? "Connected" : "Disconnected"}
-          ok={redisConnected}
-          icon={HardDrive}
-        />
-        <ServerMetric
-          label="Uptime"
-          value={formatUptime(health?.uptimeSeconds)}
-          icon={Timer}
-        />
-        <ServerMetric
-          label="Memory"
-          value={
-            health?.memory
-              ? `${health.memory.rssMb} MB RSS · ${health.memory.heapUsedMb} MB heap`
-              : "—"
-          }
-          icon={Cpu}
-        />
-      </div>
     </div>
   );
 }

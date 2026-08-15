@@ -1,15 +1,19 @@
 "use client";
 
 import { useEffect, useState, type ComponentType } from "react";
+import { usePathname } from "next/navigation";
+import Link from "next/link";
 import { useFormStatus } from "react-dom";
 import {
   BarChart3,
+  Bot,
   HeartPulse,
   LayoutDashboard,
   LogOut,
   Menu,
   Sparkles,
   SquareTerminal,
+  Users,
   X,
 } from "lucide-react";
 import { logoutAction } from "@/app/actions/auth";
@@ -23,12 +27,19 @@ interface NavItem {
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { label: "Overview", href: "#overview", icon: LayoutDashboard },
-  { label: "Metrics", href: "#metrics", icon: BarChart3 },
-  { label: "Analyses", href: "#analyses", icon: Sparkles },
-  { label: "Live logs", href: "#logs", icon: SquareTerminal },
-  { label: "Health", href: "#health", icon: HeartPulse },
+  { label: "Overview", href: "/dashboard", icon: LayoutDashboard },
+  { label: "Metrics", href: "/dashboard/metrics", icon: BarChart3 },
+  { label: "Analyses", href: "/dashboard/analyses", icon: Sparkles },
+  { label: "Live logs", href: "/dashboard/logs", icon: SquareTerminal },
+  { label: "Agent", href: "/dashboard/agent", icon: Bot },
+  { label: "Users", href: "/dashboard/users", icon: Users },
+  { label: "Health", href: "/dashboard/health", icon: HeartPulse },
 ];
+
+function isActive(pathname: string, href: string) {
+  if (href === "/dashboard") return pathname === href;
+  return pathname.startsWith(href);
+}
 
 function Avatar({ email, className }: { email: string; className?: string }) {
   const initial = email.trim().charAt(0).toUpperCase() || "U";
@@ -62,44 +73,44 @@ function SignOutRow() {
 }
 
 function NavLinks({
-  active,
+  pathname,
   onNavigate,
 }: {
-  active: string;
-  onNavigate: (label: string) => void;
+  pathname: string;
+  onNavigate?: () => void;
 }) {
   return (
     <nav className="space-y-1.5">
       {NAV_ITEMS.map(({ label, href, icon: Icon }) => {
-        const isActive = active === label;
+        const active = isActive(pathname, href);
 
         return (
-          <a
+          <Link
             key={label}
             href={href}
-            onClick={() => onNavigate(label)}
-            aria-current={isActive ? "page" : undefined}
+            onClick={onNavigate}
+            aria-current={active ? "page" : undefined}
             className={cn(
               "group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200",
-              isActive
+              active
                 ? "text-white"
                 : "text-zinc-400 hover:bg-white/5 hover:text-zinc-100",
             )}
           >
-            {isActive ? (
+            {active ? (
               <span className="absolute inset-0 -z-10 rounded-xl bg-linear-to-r from-indigo-500/90 to-violet-600/90 shadow-lg shadow-indigo-950/50" />
             ) : null}
             <Icon
               className={cn(
                 "h-[18px] w-[18px] transition-transform duration-200 group-hover:scale-110",
-                isActive ? "text-white" : "text-zinc-500",
+                active ? "text-white" : "text-zinc-500",
               )}
             />
             {label}
-            {isActive ? (
+            {active ? (
               <span className="ml-auto h-1.5 w-1.5 rounded-full bg-white/80" />
             ) : null}
-          </a>
+          </Link>
         );
       })}
     </nav>
@@ -108,19 +119,19 @@ function NavLinks({
 
 function SidebarBody({
   email,
-  active,
-  onNavigate,
+  pathname,
   onClose,
 }: {
   email: string;
-  active: string;
-  onNavigate: (label: string) => void;
+  pathname: string;
   onClose?: () => void;
 }) {
   return (
     <div className="flex h-full flex-col">
       <div className="flex items-center justify-between px-5 py-6">
-        <Logo variant="light" />
+        <Link href="/dashboard" onClick={onClose}>
+          <Logo variant="light" />
+        </Link>
         {onClose ? (
           <button
             type="button"
@@ -140,14 +151,17 @@ function SidebarBody({
       </div>
 
       <div className="mt-3 flex-1 overflow-y-auto px-3">
-        <NavLinks active={active} onNavigate={onNavigate} />
+        <NavLinks pathname={pathname} onNavigate={onClose} />
       </div>
 
       <div className="mt-auto border-t border-white/8 p-3">
         <div className="glass rounded-2xl p-3">
           <div className="flex items-center gap-3 px-1 pb-3">
             <Avatar email={email} className="h-10 w-10" />
-            <div className="min-w-0">
+            <div
+              className="
+min-w-0"
+            >
               <p className="truncate text-sm font-semibold text-zinc-100">
                 {email}
               </p>
@@ -165,7 +179,7 @@ function SidebarBody({
 
 export function Sidebar({ email }: { email: string }) {
   const [open, setOpen] = useState(false);
-  const [active, setActive] = useState("Overview");
+  const pathname = usePathname();
 
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
@@ -183,16 +197,13 @@ export function Sidebar({ email }: { email: string }) {
     };
   }, [open]);
 
-  function handleNavigate(label: string) {
-    setActive(label);
-    setOpen(false);
-  }
-
   return (
     <>
       {/* Mobile top bar */}
       <header className="sticky top-0 z-30 flex items-center justify-between border-b border-white/8 bg-[#05070d]/80 px-4 py-3 backdrop-blur-xl lg:hidden">
-        <Logo variant="light" />
+        <Link href="/dashboard" onClick={() => setOpen(false)}>
+          <Logo variant="light" />
+        </Link>
         <button
           type="button"
           onClick={() => setOpen(true)}
@@ -205,7 +216,7 @@ export function Sidebar({ email }: { email: string }) {
 
       {/* Desktop sidebar */}
       <aside className="fixed inset-y-0 left-0 z-20 hidden w-[272px] border-r border-white/8 bg-[#080b14]/90 backdrop-blur-2xl lg:block">
-        <SidebarBody email={email} active={active} onNavigate={handleNavigate} />
+        <SidebarBody email={email} pathname={pathname} />
       </aside>
 
       {/* Mobile drawer */}
@@ -218,8 +229,7 @@ export function Sidebar({ email }: { email: string }) {
           <div className="absolute inset-y-0 left-0 w-[288px] border-r border-white/10 bg-[#080b14] shadow-2xl animate-scale-in">
             <SidebarBody
               email={email}
-              active={active}
-              onNavigate={handleNavigate}
+              pathname={pathname}
               onClose={() => setOpen(false)}
             />
           </div>

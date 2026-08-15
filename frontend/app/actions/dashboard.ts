@@ -9,10 +9,12 @@ import {
   fetchSimulatedEvents,
 } from "@/lib/dashboard";
 import type {
+  AgentMessage,
   EventPayload,
   QueueStats,
   ServerHealth,
   StoredAnalysis,
+  UserRecord,
 } from "@/lib/types";
 
 export async function getAnalysesAction(): Promise<StoredAnalysis[]> {
@@ -68,6 +70,104 @@ export interface EnqueueEventResult {
   ok: boolean;
   jobId?: string;
   error?: string;
+}
+
+function messageFrom(data: unknown): string {
+  if (typeof data === "object" && data !== null) {
+    const record = data as Record<string, unknown>;
+
+    if (typeof record.message === "string" && record.message.length > 0) {
+      return record.message;
+    }
+
+    const fieldErrors = record.fieldErrors as
+      | Record<string, string[]>
+      | undefined;
+    const firstFieldError = fieldErrors
+      ? Object.values(fieldErrors).flat()[0]
+      : undefined;
+
+    if (firstFieldError) return firstFieldError;
+  }
+
+  return "Something went wrong. Please try again.";
+}
+
+export async function sendAgentMessageAction(
+  message: string,
+  history: AgentMessage[],
+): Promise<{ reply?: string; error?: string }> {
+  try {
+    const res = await authenticatedFetch("/agent/chat", {
+      method: "POST",
+      body: JSON.stringify({ message, history }),
+    });
+
+    if (!res.ok) {
+      const data = await res.json().catch(() => null);
+      return { error: messageFrom(data) };
+    }
+
+    const data = (await res.json()) as { reply?: string };
+    return { reply: data.reply ?? "" };
+  } catch {
+    return { error: "Can't reach the agent right now. Please try again." };
+  }
+}
+
+export async function listUsersAction(): Promise<UserRecord[]> {
+  try {
+    const res = await authenticatedFetch("/users");
+    if (!res.ok) return [];
+
+    const data = (await res.json()) as { users?: UserRecord[] };
+    return data.users ?? [];
+  } catch {
+    return [];
+  }
+}
+
+export async function addUserAction(
+  email: string,
+  password: string,
+): Promise<{ ok: boolean; error?: string }> {
+  try {
+    const res = await authenticatedFetch("/users", {
+      method: "POST",
+      body: JSON.stringify({ email, password }),
+    });
+
+    if (!res.ok) {
+      const data = await res.json().catch(() => null);
+      return { ok: false, error: messageFrom(data) };
+    }
+
+    revalidatePath("/dashboard");
+    return { ok: true };
+  } catch {
+    return { ok: false, error: "Can't reach the server right now." };
+  }
+}
+
+export async function removeUserAction(
+  id: string,
+): Promise<{ ok: boolean; error?: string }> {
+  try {
+    const res = await authenticatedFetch(
+      `/users?id=${encodeURIComponent(id)}`,
+      { method: "DELETE" },
+    );
+
+    if (!res.ok) {
+      const data = await res.json().catch(() => null);
+      return { ok: false, error: messageFrom(data) };
+    }
+
+    revalidatePath("/dashboard");
+    return { ok: true };
+  } catch {
+    return { ok: false, error: "Can't reach the server right now." };
+  }
 }
 
 export async function enqueueEventAction(

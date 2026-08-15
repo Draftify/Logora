@@ -17,6 +17,12 @@ import {
   clearAnalysesController,
   flushNowController,
 } from "../controllers/analysis";
+import { chatController } from "../controllers/agent";
+import {
+  listUsersController,
+  createUserController,
+  deleteUserController,
+} from "../controllers/users";
 
 export type RouteHandler = (req: Request) => Response | Promise<Response>;
 
@@ -82,6 +88,30 @@ export const routes = [
     method: "POST",
     path: "/events/analyze",
     handler: analyzeEventsController,
+    auth: true,
+  },
+  {
+    method: "POST",
+    path: "/agent/chat",
+    handler: chatController,
+    auth: true,
+  },
+  {
+    method: "GET",
+    path: "/users",
+    handler: listUsersController,
+    auth: true,
+  },
+  {
+    method: "POST",
+    path: "/users",
+    handler: createUserController,
+    auth: true,
+  },
+  {
+    method: "DELETE",
+    path: "/users",
+    handler: deleteUserController,
     auth: true,
   },
 ] as const;

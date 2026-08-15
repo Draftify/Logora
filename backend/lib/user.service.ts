@@ -85,6 +85,86 @@ export async function createUser(
   }
 }
 
+export async function listUsers(): Promise<UserRecord[]> {
+  try {
+    const users: UserRecord[] = [];
+    let cursor = "0";
+
+    do {
+      const [next, keys] = await connection.scan(
+        cursor,
+        "MATCH",
+        "user:*",
+        "COUNT",
+        100,
+      );
+      cursor = next;
+
+      for (const key of keys) {
+        if (key.startsWith("user:email:")) continue;
+
+        const record = await connection.hgetall(key);
+        if (record && Object.keys(record).length > 0) {
+          users.push(record as unknown as UserRecord);
+        }
+      }
+    } while (cursor !== "0");
+
+    return users;
+  } catch (error) {
+    logger.error(
+      { error: error instanceof Error ? error.message : String(error) },
+      "Failed to list users",
+    );
+    throw error;
+  }
+}
+
+export async function deleteUser(userId: string): Promise<boolean> {
+  try {
+    const record = await connection.hgetall(userKey(userId));
+    if (!record || Object.keys(record).length === 0) return false;
+
+    const email = record.email as string | undefined;
+
+    // Invalidate any active sessions belonging to this user.
+    let cursor = "0";
+    do {
+      const [next, keys] = await connection.scan(
+        cursor,
+        "MATCH",
+        "session:*",
+        "COUNT",
+        100,
+      );
+      cursor = next;
+
+      for (const key of keys) {
+        const sessionUserId = await connection.hget(key, "userId");
+        if (sessionUserId === userId) {
+          await connection.del(key);
+        }
+      }
+    } while (cursor !== "0");
+
+    await connection
+      .multi()
+      .del(userKey(userId))
+      .del(emailKey(email ?? ""))
+      .exec();
+
+    logger.info({ userId, email }, "User removed");
+
+    return true;
+  } catch (error) {
+    logger.error(
+      { userId, error: error instanceof Error ? error.message : String(error) },
+      "Failed to delete user",
+    );
+    throw error;
+  }
+}
+
 export async function createSession(
   userId: string,
   email: string,

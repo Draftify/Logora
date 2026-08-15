@@ -1,6 +1,11 @@
 import { Worker } from "bullmq";
 
-import { connection, eventQueue } from "../lib/queue";
+import {
+  connection,
+  eventQueue,
+  incrementCompletedCounter,
+  incrementFailedCounter,
+} from "../lib/queue";
 import { logger } from "../logger/logger";
 import type { EventPayload } from "../schema/event.schema";
 import { pushToBuffer, bufferLength } from "./analysis.store";
@@ -46,7 +51,13 @@ export const eventWorker = new Worker<EventPayload>(
   },
 );
 
+eventWorker.on("completed", () => {
+  void incrementCompletedCounter();
+});
+
 eventWorker.on("failed", (job, error) => {
+  void incrementFailedCounter();
+
   logger.error(
     {
       jobId: job?.id,

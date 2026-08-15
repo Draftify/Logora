@@ -4,6 +4,17 @@ export interface AuthUser {
   createdAt?: string;
 }
 
+export interface UserRecord {
+  id: string;
+  email: string;
+  createdAt: string;
+}
+
+export interface AgentMessage {
+  role: "user" | "assistant";
+  content: string;
+}
+
 export type RiskSeverity = "low" | "medium" | "high" | "critical";
 
 export interface Risk {
